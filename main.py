@@ -6,9 +6,11 @@ import tensorflow as tf
 import numpy as np
 import argparse
 import time
+import sys
 
 #import models
 from vgg16 import vgg16
+from alex import alex
 
 #import data generator/provider
 from bird_dataset_generator import BirdClassificationGenerator
@@ -28,10 +30,10 @@ class deep_neural_net(object):
         #load the model
         if model_name == 'vgg':
             self.model = vgg16(weight_path=model_weight_path, train = 1)
-
+        elif model_name == 'alex':
+            self.model = alex(weight_path=model_weight_path, train = 1)
 
         self.run_training_testing(model_weight_path, gpu_memory_fraction)
-
 
 
     def evaluate(self, sess, set_type):
@@ -100,6 +102,8 @@ class deep_neural_net(object):
                 start_time = time.time()
                 for step in range(len(self.obj.train_list)//self.batch_size + 1):
                     x_batch, y_batch = get_batch(train_generator_obj, 'train', height=self.model.height, width=self.model.width)
+                    #temp1 = sess.run([self.pool] , feed_dict={self.model.x:x_batch, self.model.y:y_batch})
+                    #print(temp1.shape)
                     _, loss_curr, predicted = sess.run([self.model.optimizer, self.model.loss, self.model.pred] , feed_dict={self.model.x:x_batch, self.model.y:y_batch})
                     loss = 0.9*loss + 0.1*loss_curr
                     true_positives = true_positives + np.sum(predicted == np.argmax(y_batch,1))
@@ -133,16 +137,19 @@ if __name__ == "__main__":
     parser.add_argument( "--batch_size", help="batch_size",         default = 100, type=int)
     parser.add_argument( "--val_ratio",  help="validation-ratio",   default = 0.2, type=float)
     parser.add_argument( "--num_epochs",   help="num of iterations",  default = 1000, type=int)
-    parser.add_argument( "--server",     help="code on server?",    default = 1,    type=int)
     parser.add_argument( "--gpu_mem_frac",   help="% of gpu-mem",   default = 0.4, type=float)
     parser.add_argument( "--model",      help="model-name = vgg|alex|resnet", required=True , type=str)
 
     config = parser.parse_args()
-    if config.server == 0:
-        dataset_dir = '/home/halwai/coursework/deep_learning_course/week2/assignment1/CUB_200_2011/'
-        vgg_weight_path = '/home/halwai/Downloads/vgg16_weights.npz'
-    else:
-        dataset_dir = '/data4/abhijeet/Datasets/CUB_200_2011/'
-        vgg_weight_path = '/data4/abhijeet/vgg16_weights.npz'    
 
-    net = deep_neural_net(dataset_dir, config.batch_size, config.val_ratio, config.num_epochs, config.gpu_mem_frac, config.model, vgg_weight_path)
+    dataset_dir = '/data4/abhijeet/Datasets/CUB_200_2011/'
+
+    if config.model == 'vgg':
+        model_weight_path = '/data4/abhijeet/vgg16_weights.npz'    
+    elif config.model == 'alex':
+        model_weight_path = '/data4/abhijeet/bvlc_alexnet.npy'
+    else:
+        print("No such model exsists")
+        sys.exit(0)
+
+    net = deep_neural_net(dataset_dir, config.batch_size, config.val_ratio, config.num_epochs, config.gpu_mem_frac, config.model, model_weight_path)

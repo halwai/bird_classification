@@ -35,12 +35,16 @@ def normalize_input(img, height):
     #img = np.divide(img, 255.0)
     return img 
 
+def add_random_noise(img):
+    return img + np.random.normal(0, 50.0, (img.shape))
+
 def preprocess_image(img, height, width, set_type):
     img = misc.imresize(np.asarray(img), (height, width))
     if set_type == 'train':   
         img = random_flip_lr(img)
         img = random_brightness(img)
     img = normalize_input(img, height)
+    #img = add_random_noise(img)
     return img
 
 
