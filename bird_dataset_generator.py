@@ -41,7 +41,7 @@ class BirdClassificationGenerator(object):
             spamreader = csv.reader(f, delimiter=' ')
             for row in spamreader:
                 self.train_labels_dict[int(row[0])] = int(row[1]) - 1 #offset by 0 
-                #self.train_labels_dict[int(row[0])] = (int(row[1]) -1 )/ 10 #offset by 0 
+                #self.train_labels_dict[int(row[0])] = (int(row[1]) -1 )/ 20 #offset by 0 
 
         
         with open(os.path.join(dataset_path, 'images_test.txt')) as f:

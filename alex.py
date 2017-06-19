@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 
 class alex(object):
-    def __init__(self, num_classes = 200, dropout=0.5, train= 1,  weight_path=None, param_list1=['fc8'], param_list2 = ['fc7']):
+    def __init__(self, num_classes = 200, dropout=0.5, train= 1,  weight_path=None, param_list1=['fc8'], param_list2 = ['fc6','fc7']):
         self.dropout = dropout
         self.num_classes = num_classes
         self.train  = train
@@ -35,8 +35,8 @@ class alex(object):
 
         self.global_step = tf.Variable(0, name='global_step', trainable=False)
         
-        self.train_op1 = tf.train.AdamOptimizer(learning_rate=0.01)
-        self.train_op2 = tf.train.AdamOptimizer(learning_rate=0.1)
+        self.train_op1 = tf.train.AdamOptimizer(learning_rate=0.001)
+        self.train_op2 = tf.train.AdamOptimizer(learning_rate=0.01)
 
         #compute gradients
         print('tf non-trainable variable list')
@@ -90,7 +90,7 @@ class alex(object):
         return fc8
 
     def conv_layer(self, x, in_channels, out_channels, filter_size, stride, name, groups = 2, padding='SAME'):
-        filt = tf.Variable(tf.truncated_normal(shape=[filter_size, filter_size, in_channels/groups, out_channels ], stddev = 0.01), name = name + '_W')
+        filt = tf.Variable(tf.truncated_normal(shape=[filter_size, filter_size, int(in_channels/groups), out_channels ], stddev = 0.01), name = name + '_W')
         bias = tf.Variable(tf.constant([0.1], shape=[out_channels]), name = name + '_b')      
         if self.train == 2:
             self.param_train_complete += [filt, bias]
@@ -112,9 +112,7 @@ class alex(object):
             output_groups = [ tf.nn.conv2d( i, k, strides = [ 1,stride,stride,1], padding = padding, data_format='NHWC') for i,k in zip(input_groups, filt_groups)]
 
             conv = tf.concat(axis = 3, values = output_groups)
-            #conv_shape = conv.get_shape().as_list()
-            #conv_shape[0] = -1
-            #return self.relu(tf.reshape(tf.nn.bias_add(conv, bias), conv_shape))
+
             return self.relu(tf.nn.bias_add(conv, bias))
 
 

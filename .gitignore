@@ -1,3 +1,5 @@
+srun
+slurm*
 *.pyc
 __pycache__
 checkpoints
