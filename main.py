@@ -142,7 +142,7 @@ if __name__ == "__main__":
 
     config = parser.parse_args()
 
-    dataset_dir = '/data4/abhijeet/Datasets/CUB_200_2011/'
+    dataset_dir = './data/'
 
     if config.model == 'vgg':
         model_weight_path = '/data4/abhijeet/vgg16_weights.npz'    
